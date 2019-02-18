@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css"
+        integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</head>
+
+<style>
+    h1 {
+        margin-bottom: 50px;
+    }
+</style>
+
+<body>
+    <form>
+        <div>
+            <h1>
+                Welcome to<span class="badge badge-secondary">Chat</span>
+            </h1>
+        </div>
+    </form>
+
+    <div id="chat"></br></div>
+
+    <form>
+        <div class="row">
+            <div class="col-auto">
+                <input type="text" class="form-control mb-2" id="name" placeholder="Name">
+            </div>
+            <div class="col-auto">
+                <input type="text" class="form-control mb-2" id="message" placeholder="Text message">
+            </div>
+            <div>
+                <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" id="send"
+                    value="Send">Send</a>
+
+                <button type="button" class="btn btn-primary btn-lg active" data-toggle="modal"
+                    data-target="#exampleModalScrollable" id="history" value="History">
+                    History
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="modal fade" id="exampleModalScrollable" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalScrollableTitle">History message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="getHistory"><br></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="delete" value="Delete">Delete history</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            getAllAnswers();
+
+            $("#send").click(function () {
+                var name = $("#name").val();
+                var message = $("#message").val();
+                $.get(`http://localhost:51111/Chat/PostMessage?message=${message}&username=${name}/`,
+                    function (data) {
+                        getAllAnswers();
+                    })
+            })
+        });
+
+        setInterval(getAllAnswers, 100);
+
+        var getAllAnswers = function () {
+
+            $.get('http://localhost:51111/Chat/GetSerializableAnswers/', 
+            function (data) {
+                var array = data.split('\n');
+                $("#chat").html('');
+                array.forEach(function (value, i, array) {
+
+                    $("#chat").append(`${value}<br>`);
+                });
+            })
+        }
+
+        $(function () {
+            $("#delete").click(function () {
+                $.get('http://localhost:51111/DBRequests/DeleteHistory/', 
+                function (data) {
+                })
+            })
+        });
+
+        $(function () {
+            $("#history").click(function () {
+                $.get('http://localhost:51111/DBRequests/GetHistoryMessage/', 
+                function (data) {  
+                 var array = data.split('\n');
+                $("#getHistory").html('');
+                array.forEach(function (value, i, array) {
+
+                    $("#getHistory").append(`${value}<br>`);
+                });
+            })
+        });
+        });
+
+    </script>
+</body>
+
+</html>
